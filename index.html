@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>오늘의 운세 & 익산 맛집 Pro</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts (Noto Sans KR) -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #312e81 100%);
+            min-height: 100vh;
+            color: white;
+            -webkit-overflow-scrolling: touch; 
+        }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .fade-in {
+            animation: fadeIn 0.8s ease-out forwards;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .loader {
+            border: 3px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top: 3px solid #fff;
+            width: 24px;
+            height: 24px;
+            -webkit-animation: spin 1s linear infinite;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .hover-lift {
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .hover-lift:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+        /* Custom Checkbox */
+        .custom-checkbox:checked {
+            background-color: #4f46e5;
+            border-color: #4f46e5;
+        }
+        /* Star Rating Animation */
+        .star-filled { color: #fbbf24; }
+        .star-empty { color: #4b5563; }
+    </style>
+</head>
+<body class="flex items-center justify-center p-4 min-h-screen">
+
+    <div class="max-w-md w-full glass-panel rounded-2xl shadow-2xl overflow-hidden relative my-8">
+        <!-- Decorative Elements -->
+        <div class="absolute top-0 left-0 w-32 h-32 bg-purple-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob"></div>
+        <div class="absolute top-0 right-0 w-32 h-32 bg-indigo-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-2000"></div>
+
+        <div class="relative z-10 p-6 sm:p-8">
+            <!-- Header -->
+            <div class="text-center mb-8">
+                <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-indigo-500/30 mb-4">
+                    <i data-lucide="sparkles" class="w-6 h-6 text-yellow-300"></i>
+                </div>
+                <h1 class="text-2xl font-bold mb-2">오늘의 운세 & 익산 맛집</h1>
+                <p class="text-gray-300 text-sm">당신의 하루를 위한 맞춤형 가이드</p>
+            </div>
+
+            <!-- Input Form -->
+            <div id="input-section" class="space-y-5 transition-all duration-300">
+                <div class="space-y-4">
+                    <!-- Name Input (New) -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-1">이름 (선택)</label>
+                        <input type="text" id="username" placeholder="이름을 입력하세요" class="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 text-white placeholder-gray-500">
+                    </div>
+
+                    <!-- Birthdate Input -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-1">생년월일</label>
+                        <input type="date" id="birthdate" class="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 text-white placeholder-gray-400 appearance-none" required>
+                    </div>
+
+                    <!-- Remember Me Checkbox (New) -->
+                    <div class="flex items-center gap-2">
+                        <input type="checkbox" id="remember-me" class="w-4 h-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 custom-checkbox">
+                        <label for="remember-me" class="text-sm text-gray-400 select-none cursor-pointer">내 정보 기억하기</label>
+                    </div>
+                </div>
+                
+                <button onclick="calculateFortune()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-xl transition duration-300 flex items-center justify-center gap-2 group shadow-lg shadow-indigo-500/30 hover-lift mt-2">
+                    <span id="btn-text">운세 보기</span>
+                    <div id="btn-loader" class="loader hidden"></div>
+                    <i data-lucide="arrow-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform" id="btn-icon"></i>
+                </button>
+            </div>
+
+            <!-- Result Section (Hidden initially) -->
+            <div id="result-section" class="hidden space-y-8 pt-2">
+                
+                <!-- 1. Horoscope Result -->
+                <div class="fade-in" style="animation-delay: 0.1s;">
+                    <div class="flex items-center gap-3 mb-3">
+                        <span id="zodiac-icon" class="text-3xl"></span>
+                        <div class="flex flex-col">
+                            <span id="user-greeting" class="text-sm text-indigo-300 font-medium"></span>
+                            <h2 id="zodiac-name" class="text-xl font-bold text-white"></h2>
+                        </div>
+                    </div>
+
+                    <!-- Detailed Scores (New) -->
+                    <div class="grid grid-cols-3 gap-2 mb-4">
+                        <div class="bg-white/5 rounded-lg p-2 text-center border border-white/10">
+                            <span class="text-xs text-gray-400 block mb-1">애정운</span>
+                            <div id="score-love" class="text-xs tracking-tighter"></div>
+                        </div>
+                        <div class="bg-white/5 rounded-lg p-2 text-center border border-white/10">
+                            <span class="text-xs text-gray-400 block mb-1">재물운</span>
+                            <div id="score-money" class="text-xs tracking-tighter"></div>
+                        </div>
+                        <div class="bg-white/5 rounded-lg p-2 text-center border border-white/10">
+                            <span class="text-xs text-gray-400 block mb-1">건강운</span>
+                            <div id="score-health" class="text-xs tracking-tighter"></div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white/5 rounded-xl p-4 border border-white/10 shadow-inner">
+                        <p id="fortune-text" class="text-gray-100 leading-relaxed text-sm sm:text-base font-medium"></p>
+                    </div>
+                    
+                    <div class="flex gap-2 mt-3 justify-end">
+                        <span id="lucky-color" class="text-xs px-3 py-1 rounded-full bg-white/10 text-indigo-200 border border-white/10"></span>
+                        <span id="lucky-number" class="text-xs px-3 py-1 rounded-full bg-white/10 text-indigo-200 border border-white/10"></span>
+                    </div>
+                </div>
+
+                <!-- 2. Iksan Food Recommendation (Updated with Reroll) -->
+                <div class="fade-in bg-orange-500/10 rounded-xl p-5 border border-orange-500/20 relative group" style="animation-delay: 0.2s;">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="flex items-center gap-2">
+                            <div class="p-2 bg-orange-500/20 rounded-lg">
+                                <i data-lucide="utensils" class="w-5 h-5 text-orange-300"></i>
+                            </div>
+                            <h3 class="font-bold text-white">오늘의 익산 추천 메뉴</h3>
+                        </div>
+                        <!-- Reroll Button (New) -->
+                        <button onclick="rerollFood()" class="text-xs flex items-center gap-1 bg-orange-500/20 hover:bg-orange-500/30 text-orange-200 px-2 py-1 rounded-md transition-colors" title="다른 메뉴 추천">
+                            <i data-lucide="refresh-ccw" class="w-3 h-3"></i>
+                            다시 뽑기
+                        </button>
+                    </div>
+                    <div class="space-y-4">
+                        <div>
+                            <h4 id="food-name" class="text-lg font-bold text-orange-200"></h4>
+                            <p id="food-desc" class="text-sm text-gray-300 leading-relaxed mt-1"></p>
+                        </div>
+                        <a id="food-map-link" href="#" target="_blank" class="flex items-center justify-center gap-2 w-full py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors font-medium hover-lift text-sm shadow-md">
+                            <i data-lucide="map-pin" class="w-4 h-4"></i>
+                            <span>지도로 식당 찾기</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- 3. Music Recommendation -->
+                <div class="fade-in" style="animation-delay: 0.3s;">
+                    <div class="flex items-center gap-2 mb-3">
+                        <i data-lucide="headphones" class="w-5 h-5 text-pink-400"></i>
+                        <h3 class="font-bold text-white">기분 전환 BGM</h3>
+                    </div>
+                    
+                    <div class="bg-white/5 rounded-xl p-4 border border-white/10">
+                        <p id="music-title" class="text-sm font-semibold text-white mb-1"></p>
+                        <p id="music-desc" class="text-xs text-gray-400 mb-4"></p>
+                        
+                        <a id="youtube-link" href="#" target="_blank" class="flex items-center justify-center gap-2 w-full py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors font-medium hover-lift shadow-md">
+                            <i data-lucide="youtube" class="w-5 h-5"></i>
+                            <span>유튜브에서 듣기</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Copy Result Button (New) -->
+                <div class="fade-in" style="animation-delay: 0.4s;">
+                    <button onclick="copyResult()" id="copy-btn" class="w-full py-3 bg-indigo-600/50 hover:bg-indigo-600/80 border border-indigo-500/50 text-indigo-100 rounded-xl transition-colors font-medium flex items-center justify-center gap-2 mb-4">
+                        <i data-lucide="share-2" class="w-4 h-4"></i>
+                        <span>결과 텍스트 복사하기</span>
+                    </button>
+                </div>
+
+                <!-- Reset Button -->
+                <div class="fade-in pt-4 text-center border-t border-white/10" style="animation-delay: 0.5s;">
+                    <button onclick="resetApp()" class="text-sm text-gray-400 hover:text-white flex items-center justify-center gap-1 mx-auto transition-colors">
+                        <i data-lucide="refresh-cw" class="w-3 h-3"></i>
+                        다른 생년월일로 다시 보기
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hidden textarea for copying -->
+    <textarea id="hidden-copy-area" class="fixed top-0 left-0 w-1 h-1 opacity-0 pointer-events-none"></textarea>
+
+    <script>
+        // Icons initialization
+        lucide.createIcons();
+
+        // 1. Load saved data on startup
+        window.addEventListener('load', () => {
+            const savedName = localStorage.getItem('fortune_name');
+            const savedDate = localStorage.getItem('fortune_date');
+            if (savedName) document.getElementById('username').value = savedName;
+            if (savedDate) {
+                document.getElementById('birthdate').value = savedDate;
+                document.getElementById('remember-me').checked = true;
+            }
+        });
+
+        const zodiacSigns = [
+            { name: "물병자리", start: "01-20", end: "02-18", icon: "♒" },
+            { name: "물고기자리", start: "02-19", end: "03-20", icon: "♓" },
+            { name: "양자리", start: "03-21", end: "04-19", icon: "♈" },
+            { name: "황소자리", start: "04-20", end: "05-20", icon: "♉" },
+            { name: "쌍둥이자리", start: "05-21", end: "06-21", icon: "♊" },
+            { name: "게자리", start: "06-22", end: "07-22", icon: "♋" },
+            { name: "사자자리", start: "07-23", end: "08-22", icon: "♌" },
+            { name: "처녀자리", start: "08-23", end: "09-22", icon: "♍" },
+            { name: "천칭자리", start: "09-23", end: "10-22", icon: "♎" },
+            { name: "전갈자리", start: "10-23", end: "11-22", icon: "♏" },
+            { name: "사수자리", start: "11-23", end: "12-24", icon: "♐" },
+            { name: "염소자리", start: "12-25", end: "01-19", icon: "♑" }
+        ];
+
+        const fortunes = [
+            { text: "오늘은 당신의 직관력이 빛을 발하는 날입니다. 망설이던 일이 있다면 과감하게 도전해보세요. 예상치 못한 행운이 따를 것입니다.", mood: "active" },
+            { text: "잠시 쉬어가는 여유가 필요한 하루입니다. 무리하게 일을 진행하기보다는 현재 상태를 점검하고 내실을 다지는 것이 좋습니다.", mood: "calm" },
+            { text: "대인관계에서 기분 좋은 소식이 들려올 것 같아요. 오랜 친구에게 연락하거나 새로운 만남을 가져보기에 아주 좋은 날입니다.", mood: "happy" },
+            { text: "작은 실수가 발생할 수 있으니 꼼꼼함이 필요합니다. 하지만 너무 걱정하지 마세요, 전화위복의 기회가 될 수 있습니다.", mood: "focus" },
+            { text: "창의적인 아이디어가 샘솟는 날입니다. 메모하는 습관을 들이세요. 오늘의 생각이 미래의 큰 자산이 될 것입니다.", mood: "dreamy" },
+            { text: "사랑의 기운이 가득한 하루입니다. 연인이 있다면 더욱 깊어질 것이고, 솔로라면 새로운 인연을 기대해도 좋습니다.", mood: "romantic" },
+            { text: "스트레스가 조금 쌓일 수 있는 날입니다. 오늘은 남들보다 나 자신을 챙기는 하루를 보내세요. 맛있는 음식으로 힐링이 필요합니다.", mood: "healing" }
+        ];
+
+        const musicRecommendations = {
+            "active": { url: "https://www.youtube.com/watch?v=gBank9pDQHM", title: "에너지 넘치는 하루를 위한 팝", desc: "활기찬 하루를 위한 Upbeat Pop Playlist" },
+            "calm": { url: "https://www.youtube.com/watch?v=jfKfPfyJRdk", title: "마음이 편안해지는 Lo-fi", desc: "차분한 휴식을 위한 Lo-fi beats" },
+            "happy": { url: "https://www.youtube.com/watch?v=5qap5aO4i9A", title: "기분 좋은 어쿠스틱 노래", desc: "행복한 기분을 더해줄 Acoustic Songs" },
+            "focus": { url: "https://www.youtube.com/watch?v=WPni755-Krg", title: "집중력을 높여주는 피아노", desc: "차분하게 집중할 수 있는 Piano Ambient" },
+            "dreamy": { url: "https://www.youtube.com/watch?v=tNkZsRW7h2c", title: "상상력을 자극하는 우주적 사운드", desc: "영감을 주는 Space Ambient Music" },
+            "romantic": { url: "https://www.youtube.com/watch?v=rJ_qC0T5tMI", title: "달달한 사랑 노래 모음", desc: "설렘 가득한 K-Pop Ballad & R&B" },
+            "healing": { url: "https://www.youtube.com/watch?v=lTRiuFIWV54", title: "지친 마음을 위로하는 연주곡", desc: "편안한 힐링 피아노 연주곡" }
+        };
+
+        // Updated Food Recommendations (Arrays for Reroll)
+        const foodRecommendations = {
+            "active": [
+                { name: "황등 육회비빔밥", searchQuery: "익산 황등 육회비빔밥 맛집", desc: "활력이 넘치는 오늘! 든든한 육회비빔밥으로 에너지 충전." },
+                { name: "솜리치킨 (가마솥통닭)", searchQuery: "익산 솜리치킨", desc: "익산의 자존심! 바삭하고 고소한 카레향 통닭." },
+                { name: "익산역 앞 쫄면", searchQuery: "익산역 쫄면 맛집", desc: "새콤달콤 매콤한 쫄면으로 입맛을 확 돋우세요!" }
+            ],
+            "calm": [
+                { name: "서동마(마) 요리", searchQuery: "익산 서동마 맛집", desc: "속이 편안한 서동마 요리로 건강한 한 끼." },
+                { name: "미륵사지 순두부", searchQuery: "익산 미륵사지 순두부", desc: "자극적이지 않고 고소한 순두부의 깊은 맛." },
+                { name: "전통 찻집 쌍화탕", searchQuery: "익산 전통 찻집", desc: "따뜻한 쌍화탕 한 잔과 함께하는 여유." }
+            ],
+            "happy": [
+                { name: "익산 시장 깨통닭", searchQuery: "익산 깨통닭", desc: "기분 좋은 날엔 역시 시장 통닭! 친구들과 나눠 먹기 딱 좋아요." },
+                { name: "모현동 삼겹살", searchQuery: "익산 모현동 삼겹살", desc: "즐거운 날엔 지글지글 삼겹살 파티가 최고죠." },
+                { name: "영등동 떡볶이", searchQuery: "익산 영등동 떡볶이 맛집", desc: "매콤달콤 떡볶이로 행복 지수 업!" }
+            ],
+            "focus": [
+                { name: "시원한 대구탕", searchQuery: "익산 대구탕 맛집", desc: "머리가 맑아지는 시원한 국물 요리." },
+                { name: "전주식 콩나물국밥", searchQuery: "익산 콩나물국밥", desc: "따뜻하고 든든하게 속을 채워 집중력 향상." },
+                { name: "갈비탕", searchQuery: "익산 갈비탕 맛집", desc: "진한 국물의 갈비탕으로 든든하게 몸보신." }
+            ],
+            "dreamy": [
+                { name: "익산 고구마빵", searchQuery: "익산 고구마빵", desc: "달콤하고 부드러운 고구마빵, 창의력 자극 간식." },
+                { name: "대학로 와플", searchQuery: "익산 원광대 와플", desc: "달달한 와플 한 입으로 기분 전환." },
+                { name: "분위기 좋은 베이커리 카페", searchQuery: "익산 베이커리 카페", desc: "향긋한 빵 냄새와 함께 아이디어 구상하기." }
+            ],
+            "romantic": [
+                { name: "영등동 파스타", searchQuery: "익산 영등동 파스타", desc: "로맨틱한 분위기에서 즐기는 파스타 한 접시." },
+                { name: "스테이크 하우스", searchQuery: "익산 스테이크 맛집", desc: "특별한 날, 칼질 한번 어때요?" },
+                { name: "분위기 좋은 와인바", searchQuery: "익산 와인바", desc: "은은한 조명 아래 와인 한 잔의 여유." }
+            ],
+            "healing": [
+                { name: "매콤한 낙지볶음", searchQuery: "익산 낙지볶음", desc: "스트레스 타파! 땀 흘리며 먹는 매운맛." },
+                { name: "얼큰한 물짜장", searchQuery: "익산 물짜장 맛집", desc: "익산의 명물, 얼큰하고 걸쭉한 물짜장의 매력." },
+                { name: "매운 짬뽕", searchQuery: "익산 짬뽕 맛집", desc: "속이 뻥 뚫리는 매운 국물 한 사발." }
+            ]
+        };
+
+        const colors = ["골드", "실버", "딥블루", "로즈핑크", "에메랄드", "화이트", "바이올렛"];
+
+        // Global state for reroll
+        let currentMood = "";
+        let currentFoodIndex = 0;
+
+        function getZodiac(date) {
+            const month = date.getMonth() + 1;
+            const day = date.getDate();
+            const dateStr = `${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
+            if (month === 1 && day <= 19) return zodiacSigns.find(z => z.name === "염소자리");
+            for (let z of zodiacSigns) {
+                if (dateStr >= z.start && dateStr <= z.end) return z;
+            }
+            return zodiacSigns.find(z => z.name === "염소자리");
+        }
+
+        function seededRandom(seed) {
+            let x = Math.sin(seed++) * 10000;
+            return x - Math.floor(x);
+        }
+
+        function generateStars(score) {
+            let stars = "";
+            for (let i = 0; i < 5; i++) {
+                if (i < score) stars += `<span class="star-filled">★</span>`;
+                else stars += `<span class="star-empty">☆</span>`;
+            }
+            return stars;
+        }
+
+        function calculateFortune() {
+            const birthInput = document.getElementById('birthdate').value;
+            const nameInput = document.getElementById('username').value.trim();
+            const rememberMe = document.getElementById('remember-me').checked;
+
+            if (!birthInput) {
+                alert("생년월일을 입력해주세요!");
+                return;
+            }
+
+            // Save or Clear LocalStorage
+            if (rememberMe) {
+                localStorage.setItem('fortune_date', birthInput);
+                localStorage.setItem('fortune_name', nameInput);
+            } else {
+                localStorage.removeItem('fortune_date');
+                localStorage.removeItem('fortune_name');
+            }
+
+            // UI Loading
+            const btnText = document.getElementById('btn-text');
+            const btnLoader = document.getElementById('btn-loader');
+            const btnIcon = document.getElementById('btn-icon');
+            btnText.classList.add('hidden');
+            btnIcon.classList.add('hidden');
+            btnLoader.classList.remove('hidden');
+
+            setTimeout(() => {
+                const birthDate = new Date(birthInput);
+                const today = new Date();
+                const zodiac = getZodiac(birthDate);
+
+                const seedString = birthInput + today.toISOString().split('T')[0];
+                let seed = 0;
+                for (let i = 0; i < seedString.length; i++) seed += seedString.charCodeAt(i);
+
+                const rand1 = seededRandom(seed);
+                const rand2 = seededRandom(seed + 1);
+                
+                // Fortune & Mood
+                const fortuneIndex = Math.floor(rand1 * fortunes.length);
+                const selectedFortune = fortunes[fortuneIndex];
+                currentMood = selectedFortune.mood; // Set global mood
+
+                // Detail Scores (1-5)
+                const loveScore = Math.floor(seededRandom(seed + 2) * 5) + 1;
+                const moneyScore = Math.floor(seededRandom(seed + 3) * 5) + 1;
+                const healthScore = Math.floor(seededRandom(seed + 4) * 5) + 1;
+
+                // Color & Number
+                const luckyColor = colors[Math.floor(rand2 * colors.length)];
+                const luckyNumber = Math.floor(rand2 * 99) + 1;
+
+                // Music & Food
+                const music = musicRecommendations[selectedFortune.mood];
+                currentFoodIndex = 0; // Reset food index
+                const foodList = foodRecommendations[selectedFortune.mood];
+                const food = foodList[0];
+
+                // Render Header
+                document.getElementById('zodiac-icon').textContent = zodiac.icon;
+                const displayName = nameInput ? `${nameInput}님` : "당신";
+                document.getElementById('user-greeting').textContent = `${displayName}의 별자리`;
+                document.getElementById('zodiac-name').textContent = zodiac.name;
+
+                // Render Scores
+                document.getElementById('score-love').innerHTML = generateStars(loveScore);
+                document.getElementById('score-money').innerHTML = generateStars(moneyScore);
+                document.getElementById('score-health').innerHTML = generateStars(healthScore);
+
+                // Render Text
+                document.getElementById('fortune-text').textContent = selectedFortune.text;
+                document.getElementById('lucky-color').textContent = `행운색: ${luckyColor}`;
+                document.getElementById('lucky-number').textContent = `행운수: ${luckyNumber}`;
+                
+                // Render Food
+                updateFoodDisplay(food);
+
+                // Render Music
+                document.getElementById('music-title').textContent = music.title;
+                document.getElementById('music-desc').textContent = music.desc;
+                document.getElementById('youtube-link').href = music.url;
+
+                // View Switch
+                document.getElementById('input-section').classList.add('hidden');
+                document.getElementById('result-section').classList.remove('hidden');
+                document.getElementById('result-section').scrollIntoView({ behavior: 'smooth' });
+
+                btnText.classList.remove('hidden');
+                btnIcon.classList.remove('hidden');
+                btnLoader.classList.add('hidden');
+                lucide.createIcons();
+
+            }, 1000); 
+        }
+
+        function updateFoodDisplay(food) {
+            document.getElementById('food-name').textContent = food.name;
+            document.getElementById('food-desc').textContent = food.desc;
+            const mapBaseUrl = "https://map.naver.com/p/search/";
+            document.getElementById('food-map-link').href = mapBaseUrl + encodeURIComponent(food.searchQuery);
+        }
+
+        function rerollFood() {
+            if (!currentMood) return;
+            const foodList = foodRecommendations[currentMood];
+            currentFoodIndex = (currentFoodIndex + 1) % foodList.length; // Cycle through
+            const nextFood = foodList[currentFoodIndex];
+            
+            // Simple animation effect
+            const foodNameEl = document.getElementById('food-name');
+            foodNameEl.style.opacity = '0';
+            setTimeout(() => {
+                updateFoodDisplay(nextFood);
+                foodNameEl.style.opacity = '1';
+            }, 200);
+        }
+
+        function copyResult() {
+            const name = document.getElementById('username').value || "나";
+            const zodiac = document.getElementById('zodiac-name').textContent;
+            const fortune = document.getElementById('fortune-text').textContent;
+            const food = document.getElementById('food-name').textContent;
+            
+            const textToCopy = `[🔮오늘의 운세 & 익산 맛집]\n\n👤 ${name}의 ${zodiac} 운세\n✨ "${fortune}"\n\n🍽 추천 메뉴: ${food}\n\n오늘도 행운 가득한 하루 되세요!`;
+
+            const textArea = document.getElementById('hidden-copy-area');
+            textArea.value = textToCopy;
+            textArea.select();
+            
+            try {
+                const successful = document.execCommand('copy');
+                const btn = document.getElementById('copy-btn');
+                const originalContent = btn.innerHTML;
+                
+                if (successful) {
+                    btn.innerHTML = `<i data-lucide="check" class="w-4 h-4"></i><span>복사 완료!</span>`;
+                    btn.classList.add('bg-green-600', 'border-green-500');
+                    setTimeout(() => {
+                        btn.innerHTML = originalContent;
+                        btn.classList.remove('bg-green-600', 'border-green-500');
+                        lucide.createIcons();
+                    }, 2000);
+                } else {
+                    alert('복사에 실패했습니다.');
+                }
+            } catch (err) {
+                console.error('Copy failed', err);
+                alert('복사 기능을 사용할 수 없습니다.');
+            }
+        }
+
+        function resetApp() {
+            document.getElementById('input-section').classList.remove('hidden');
+            document.getElementById('result-section').classList.add('hidden');
+            if (!document.getElementById('remember-me').checked) {
+                document.getElementById('birthdate').value = '';
+                document.getElementById('username').value = '';
+            }
+        }
+    </script>
+</body>
+</html>
