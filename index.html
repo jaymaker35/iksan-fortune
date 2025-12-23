@@ -3,15 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>오늘의 운세 & 익산 맛집 Pro</title>
-    <!-- Tailwind CSS -->
+    <title>익산 맛집 처방전 - 닥터 익산</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google Fonts (Noto Sans KR) -->
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
-    <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
-    <!-- Visitor Counter Script (Busuanzi) -->
     <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
 
     <style>
         body {
@@ -27,236 +24,232 @@
             -webkit-backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.2);
         }
-        .fade-in {
-            animation: fadeIn 0.8s ease-out forwards;
-            opacity: 0;
-            transform: translateY(20px);
-        }
-        @keyframes fadeIn {
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
+        .fade-in { animation: fadeIn 0.8s ease-out forwards; opacity: 0; transform: translateY(20px); }
+        @keyframes fadeIn { to { opacity: 1; transform: translateY(0); } }
         .loader {
-            border: 3px solid rgba(255,255,255,0.3);
-            border-radius: 50%;
-            border-top: 3px solid #fff;
-            width: 24px;
-            height: 24px;
-            -webkit-animation: spin 1s linear infinite;
-            animation: spin 1s linear infinite;
+            border: 3px solid rgba(255,255,255,0.3); border-radius: 50%; border-top: 3px solid #fff;
+            width: 24px; height: 24px; animation: spin 1s linear infinite;
         }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        .hover-lift {
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-        }
-        .hover-lift:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
-        }
-        /* Custom Checkbox */
-        .custom-checkbox:checked {
-            background-color: #4f46e5;
-            border-color: #4f46e5;
-        }
-        /* Star Rating Animation */
-        .star-filled { color: #fbbf24; }
-        .star-empty { color: #4b5563; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .custom-checkbox:checked { background-color: #4f46e5; border-color: #4f46e5; }
+        #capture-area { background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%); position: relative; overflow: hidden; }
         
-        /* Visitor Counter Animation */
-        #busuanzi_container_site_pv {
-            animation: fadeIn 1s ease-in-out;
-        }
+        /* Biorhythm Bar Animation */
+        .progress-bar { transition: width 1.5s ease-in-out; }
     </style>
 </head>
 <body class="flex items-center justify-center p-4 min-h-screen">
 
     <div class="max-w-md w-full glass-panel rounded-2xl shadow-2xl overflow-hidden relative my-8">
-        <!-- Decorative Elements -->
         <div class="absolute top-0 left-0 w-32 h-32 bg-purple-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob"></div>
         <div class="absolute top-0 right-0 w-32 h-32 bg-indigo-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-2000"></div>
 
         <div class="relative z-10 p-6 sm:p-8">
-            <!-- Header -->
+            <!-- Header (Updated Title & Icon) -->
             <div class="text-center mb-8">
-                <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-indigo-500/30 mb-4">
-                    <i data-lucide="sparkles" class="w-6 h-6 text-yellow-300"></i>
+                <div class="inline-flex items-center justify-center w-14 h-14 rounded-full bg-green-500/20 mb-4 border border-green-500/30">
+                    <!-- Stethoscope Icon for Prescription Concept -->
+                    <i data-lucide="stethoscope" class="w-8 h-8 text-green-400"></i>
                 </div>
-                <h1 class="text-2xl font-bold mb-2">오늘의 운세 & 익산 맛집</h1>
-                <p class="text-gray-300 text-sm">당신의 하루를 위한 맞춤형 가이드</p>
+                <h1 class="text-2xl font-bold mb-2">익산 맛집 처방전</h1>
+                <p class="text-gray-300 text-sm">바이오리듬으로 진단하는 나만의 메뉴</p>
             </div>
 
-            <!-- Input Form -->
             <div id="input-section" class="space-y-5 transition-all duration-300">
                 <div class="space-y-4">
-                    <!-- Name Input -->
                     <div>
-                        <label class="block text-sm font-medium text-gray-300 mb-1">이름 (선택)</label>
-                        <input type="text" id="username" placeholder="이름을 입력하세요" class="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 text-white placeholder-gray-500">
+                        <label class="block text-sm font-medium text-gray-300 mb-1">환자(?) 성함</label>
+                        <input type="text" id="username" placeholder="이름 입력" class="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 text-white">
                     </div>
-
-                    <!-- Birthdate Input -->
                     <div>
-                        <label class="block text-sm font-medium text-gray-300 mb-1">생년월일</label>
-                        <input type="date" id="birthdate" class="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 text-white placeholder-gray-400 appearance-none" required>
+                        <label class="block text-sm font-medium text-gray-300 mb-1">생년월일 (진단 필수 정보)</label>
+                        <input type="date" id="birthdate" class="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 text-white placeholder-gray-400 appearance-none" required>
                     </div>
-
-                    <!-- Remember Me Checkbox -->
                     <div class="flex items-center gap-2">
-                        <input type="checkbox" id="remember-me" class="w-4 h-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 custom-checkbox">
-                        <label for="remember-me" class="text-sm text-gray-400 select-none cursor-pointer">내 정보 기억하기</label>
+                        <input type="checkbox" id="remember-me" class="w-4 h-4 rounded border-gray-300 text-green-600 focus:ring-green-500 custom-checkbox">
+                        <label for="remember-me" class="text-sm text-gray-400 cursor-pointer">내 진료 정보 기억하기</label>
                     </div>
                 </div>
                 
-                <button onclick="calculateFortune()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-xl transition duration-300 flex items-center justify-center gap-2 group shadow-lg shadow-indigo-500/30 hover-lift mt-2">
-                    <span id="btn-text">운세 보기</span>
+                <button onclick="startAnalysis()" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-xl transition duration-300 flex items-center justify-center gap-2 mt-2 shadow-lg shadow-green-500/30">
+                    <span id="btn-text">내 몸 상태 진단하고 처방받기</span>
                     <div id="btn-loader" class="loader hidden"></div>
-                    <i data-lucide="arrow-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform" id="btn-icon"></i>
                 </button>
             </div>
 
-            <!-- Result Section (Hidden initially) -->
-            <div id="result-section" class="hidden space-y-8 pt-2">
+            <div id="result-section" class="hidden space-y-6 pt-2">
                 
-                <!-- 1. Horoscope Result -->
-                <div class="fade-in" style="animation-delay: 0.1s;">
-                    <div class="flex items-center gap-3 mb-3">
-                        <span id="zodiac-icon" class="text-3xl"></span>
-                        <div class="flex flex-col">
-                            <span id="user-greeting" class="text-sm text-indigo-300 font-medium"></span>
-                            <h2 id="zodiac-name" class="text-xl font-bold text-white"></h2>
-                        </div>
-                    </div>
-
-                    <!-- Detailed Scores -->
-                    <div class="grid grid-cols-3 gap-2 mb-4">
-                        <div class="bg-white/5 rounded-lg p-2 text-center border border-white/10">
-                            <span class="text-xs text-gray-400 block mb-1">애정운</span>
-                            <div id="score-love" class="text-xs tracking-tighter"></div>
-                        </div>
-                        <div class="bg-white/5 rounded-lg p-2 text-center border border-white/10">
-                            <span class="text-xs text-gray-400 block mb-1">재물운</span>
-                            <div id="score-money" class="text-xs tracking-tighter"></div>
-                        </div>
-                        <div class="bg-white/5 rounded-lg p-2 text-center border border-white/10">
-                            <span class="text-xs text-gray-400 block mb-1">건강운</span>
-                            <div id="score-health" class="text-xs tracking-tighter"></div>
-                        </div>
-                    </div>
-
-                    <div class="bg-white/5 rounded-xl p-4 border border-white/10 shadow-inner">
-                        <p id="fortune-text" class="text-gray-100 leading-relaxed text-sm sm:text-base font-medium"></p>
-                    </div>
+                <!-- 캡처 영역 -->
+                <div id="capture-area" class="p-6 rounded-xl border border-white/10 shadow-2xl space-y-5">
                     
-                    <div class="flex gap-2 mt-3 justify-end">
-                        <span id="lucky-color" class="text-xs px-3 py-1 rounded-full bg-white/10 text-indigo-200 border border-white/10"></span>
-                        <span id="lucky-number" class="text-xs px-3 py-1 rounded-full bg-white/10 text-indigo-200 border border-white/10"></span>
-                    </div>
-                </div>
-
-                <!-- 2. Iksan Food Recommendation -->
-                <div class="fade-in bg-orange-500/10 rounded-xl p-5 border border-orange-500/20 relative group" style="animation-delay: 0.2s;">
-                    <div class="flex items-center justify-between mb-3">
-                        <div class="flex items-center gap-2">
-                            <div class="p-2 bg-orange-500/20 rounded-lg">
-                                <i data-lucide="utensils" class="w-5 h-5 text-orange-300"></i>
+                    <!-- 날씨 -->
+                    <div class="flex items-center justify-between bg-white/10 p-4 rounded-xl border border-white/10 backdrop-blur-sm">
+                        <div class="flex items-center gap-3">
+                            <span id="weather-icon" class="text-3xl filter drop-shadow-md">☀️</span>
+                            <div>
+                                <p class="text-xs text-indigo-200 mb-0.5">현재 익산 날씨</p>
+                                <p id="weather-text" class="font-bold text-lg text-white">맑음, 22°C</p>
                             </div>
-                            <h3 class="font-bold text-white">오늘의 익산 추천 메뉴</h3>
                         </div>
-                        <!-- Reroll Button -->
-                        <button onclick="rerollFood()" class="text-xs flex items-center gap-1 bg-orange-500/20 hover:bg-orange-500/30 text-orange-200 px-2 py-1 rounded-md transition-colors" title="다른 메뉴 추천">
-                            <i data-lucide="refresh-ccw" class="w-3 h-3"></i>
-                            다시 뽑기
-                        </button>
-                    </div>
-                    <div class="space-y-4">
-                        <div>
-                            <h4 id="food-name" class="text-lg font-bold text-orange-200"></h4>
-                            <p id="food-desc" class="text-sm text-gray-300 leading-relaxed mt-1"></p>
+                        <div class="text-right border-l border-white/20 pl-4">
+                             <p class="text-[10px] text-gray-300">Prescription Date</p>
+                             <p id="today-date" class="font-bold text-lg text-white">05.23</p>
                         </div>
-                        <a id="food-map-link" href="#" target="_blank" class="flex items-center justify-center gap-2 w-full py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors font-medium hover-lift text-sm shadow-md">
-                            <i data-lucide="map-pin" class="w-4 h-4"></i>
-                            <span>지도로 식당 찾기</span>
-                        </a>
                     </div>
-                </div>
 
-                <!-- 3. Music Recommendation -->
-                <div class="fade-in" style="animation-delay: 0.3s;">
-                    <div class="flex items-center gap-2 mb-3">
-                        <i data-lucide="headphones" class="w-5 h-5 text-pink-400"></i>
-                        <h3 class="font-bold text-white">기분 전환 BGM</h3>
+                    <!-- 바이오리듬 분석 결과 -->
+                    <div class="space-y-4">
+                        <div class="flex items-center gap-2 mb-1">
+                            <span id="zodiac-icon" class="text-2xl"></span>
+                            <div>
+                                <h2 id="user-greeting" class="font-bold text-white text-lg"></h2>
+                                <p class="text-xs text-gray-400">님의 바이오리듬 진단 차트</p>
+                            </div>
+                        </div>
+
+                        <!-- 그래프 -->
+                        <div class="space-y-3 bg-black/20 p-4 rounded-xl border border-white/5">
+                            <!-- 신체 -->
+                            <div>
+                                <div class="flex justify-between text-xs mb-1">
+                                    <span class="text-green-300">신체 (체력/면역)</span>
+                                    <span id="val-phy" class="font-bold">0%</span>
+                                </div>
+                                <div class="w-full bg-gray-700 rounded-full h-2">
+                                    <div id="bar-phy" class="bg-green-500 h-2 rounded-full progress-bar" style="width: 0%"></div>
+                                </div>
+                            </div>
+                            <!-- 감성 -->
+                            <div>
+                                <div class="flex justify-between text-xs mb-1">
+                                    <span class="text-red-300">감성 (기분/스트레스)</span>
+                                    <span id="val-emo" class="font-bold">0%</span>
+                                </div>
+                                <div class="w-full bg-gray-700 rounded-full h-2">
+                                    <div id="bar-emo" class="bg-red-500 h-2 rounded-full progress-bar" style="width: 0%"></div>
+                                </div>
+                            </div>
+                            <!-- 지성 -->
+                            <div>
+                                <div class="flex justify-between text-xs mb-1">
+                                    <span class="text-blue-300">지성 (두뇌/집중력)</span>
+                                    <span id="val-int" class="font-bold">0%</span>
+                                </div>
+                                <div class="w-full bg-gray-700 rounded-full h-2">
+                                    <div id="bar-int" class="bg-blue-500 h-2 rounded-full progress-bar" style="width: 0%"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 종합 코멘트 -->
+                        <div class="bg-white/5 rounded-xl p-4 border border-white/10">
+                            <p class="text-[10px] text-gray-400 mb-1">🩺 닥터 익산의 소견</p>
+                            <p id="fortune-text" class="text-gray-100 leading-relaxed text-sm font-medium"></p>
+                        </div>
+                    </div>
+
+                    <!-- 맛집 추천 (처방전 컨셉) -->
+                    <div class="bg-green-500/10 rounded-xl p-4 border border-green-500/20 relative">
+                        <div class="flex items-center justify-between mb-2">
+                            <h3 class="font-bold text-white text-sm flex items-center gap-2">
+                                <i data-lucide="pill" class="w-4 h-4 text-green-300"></i>
+                                오늘의 맛집 처방
+                            </h3>
+                            <span id="food-reason-badge" class="text-[10px] bg-green-500/30 text-green-100 px-2 py-0.5 rounded-full font-medium">처방 완료</span>
+                        </div>
+                        <div>
+                            <h4 id="food-name" class="text-lg font-bold text-green-200"></h4>
+                            <p id="food-desc" class="text-xs text-gray-300 leading-relaxed mt-1"></p>
+                        </div>
+                        
+                        <div class="mt-3 flex justify-end" data-html2canvas-ignore="true">
+                            <button onclick="rerollFood()" class="text-xs text-green-200/70 hover:text-green-200 flex items-center gap-1 transition-colors">
+                                <i data-lucide="refresh-ccw" class="w-3 h-3"></i> 다른 처방 보기
+                            </button>
+                        </div>
                     </div>
                     
-                    <div class="bg-white/5 rounded-xl p-4 border border-white/10">
-                        <p id="music-title" class="text-sm font-semibold text-white mb-1"></p>
-                        <p id="music-desc" class="text-xs text-gray-400 mb-4"></p>
-                        
-                        <a id="youtube-link" href="#" target="_blank" class="flex items-center justify-center gap-2 w-full py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors font-medium hover-lift shadow-md">
-                            <i data-lucide="youtube" class="w-5 h-5"></i>
-                            <span>유튜브에서 듣기</span>
-                        </a>
+                    <!-- 지도 찾기 메뉴 -->
+                    <a id="food-map-link" href="#" target="_blank" class="flex items-center justify-center gap-2 w-full py-3 bg-green-600 hover:bg-green-700 text-white rounded-xl transition-colors font-bold text-sm shadow-md mt-4" data-html2canvas-ignore="true">
+                        <i data-lucide="map-pin" class="w-4 h-4"></i> 처방 식당 위치 찾기
+                    </a>
+                    
+                    <div class="text-center pt-2 mt-4 border-t border-white/5">
+                        <p class="text-[10px] text-gray-400">익산 맛집 처방전 by Dr.Iksan</p>
                     </div>
-                </div>
+                </div> 
+                <!-- 캡처 영역 끝 -->
 
-                <!-- Copy Result Button -->
-                <div class="fade-in" style="animation-delay: 0.4s;">
-                    <button onclick="copyResult()" id="copy-btn" class="w-full py-3 bg-indigo-600/50 hover:bg-indigo-600/80 border border-indigo-500/50 text-indigo-100 rounded-xl transition-colors font-medium flex items-center justify-center gap-2 mb-4">
-                        <i data-lucide="share-2" class="w-4 h-4"></i>
-                        <span>결과 텍스트 복사하기</span>
+                <!-- 버튼 영역 -->
+                <div class="grid grid-cols-2 gap-3">
+                    <button onclick="shareResult()" class="col-span-1 py-3 bg-yellow-400 hover:bg-yellow-500 text-gray-900 rounded-xl transition-colors font-bold flex items-center justify-center gap-2 shadow-lg text-sm">
+                        <i data-lucide="share-2" class="w-4 h-4"></i> 처방전 공유
+                    </button>
+                    <button onclick="saveAsImage()" id="save-btn" class="col-span-1 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl transition-colors font-bold flex items-center justify-center gap-2 shadow-lg text-sm">
+                        <i data-lucide="download" class="w-4 h-4"></i> 처방전 저장
                     </button>
                 </div>
 
-                <!-- Reset Button -->
-                <div class="fade-in pt-4 text-center border-t border-white/10" style="animation-delay: 0.5s;">
+                <div class="pt-4 text-center border-t border-white/10">
                     <button onclick="resetApp()" class="text-sm text-gray-400 hover:text-white flex items-center justify-center gap-1 mx-auto transition-colors">
-                        <i data-lucide="refresh-cw" class="w-3 h-3"></i>
-                        다른 생년월일로 다시 보기
+                        <i data-lucide="refresh-cw" class="w-3 h-3"></i> 다른 사람 진단하기
                     </button>
                 </div>
             </div>
 
-            <!-- Footer & Visitor Counter (New) -->
             <div class="mt-8 pt-4 border-t border-white/10 flex justify-between items-end text-xs text-gray-400">
                 <div>
-                    <p class="mb-1">© 2025 Iksan Fortune</p>
-                    <p>Designed for you</p>
+                    <p class="mb-1">© 2025 Dr. Iksan's Prescription</p>
+                    <p>Powered by Biorhythm Algo</p>
                 </div>
-                
-                <!-- Busuanzi Counter Container -->
                 <div class="flex items-center gap-1 bg-white/5 px-2 py-1 rounded-lg border border-white/5">
                     <span id="busuanzi_container_site_pv" style="display:none;">
                         <i data-lucide="users" class="w-3 h-3 inline text-indigo-300"></i>
-                        <span class="ml-1">방문자수: </span>
-                        <span id="busuanzi_value_site_pv" class="font-bold text-indigo-200">Loading...</span>
+                        <span class="ml-1"></span>
+                        <span id="busuanzi_value_site_pv" class="font-bold text-indigo-200">...</span>
                     </span>
                 </div>
             </div>
-
         </div>
     </div>
 
-    <!-- Hidden textarea for copying -->
-    <textarea id="hidden-copy-area" class="fixed top-0 left-0 w-1 h-1 opacity-0 pointer-events-none"></textarea>
-
     <script>
-        // Icons initialization
         lucide.createIcons();
 
-        // 1. Load saved data on startup
-        window.addEventListener('load', () => {
-            const savedName = localStorage.getItem('fortune_name');
-            const savedDate = localStorage.getItem('fortune_date');
-            if (savedName) document.getElementById('username').value = savedName;
-            if (savedDate) {
-                document.getElementById('birthdate').value = savedDate;
-                document.getElementById('remember-me').checked = true;
-            }
-        });
+        // [데이터] 음식 데이터
+        const weatherFoods = {
+            "rain": [
+                { name: "전집 (파전&막걸리)", query: "익산 전집 맛집", desc: "비 오는 날 특효약! 지글지글 파전에 막걸리 한 잔." },
+                { name: "얼큰한 짬뽕", query: "익산 짬뽕 맛집", desc: "비 오는 날의 우울함을 날려버릴 얼큰한 국물 처방." },
+                { name: "부대찌개", query: "익산 부대찌개", desc: "빗소리와 함께 끓는 따뜻한 국물이 필요합니다." }
+            ],
+            "snow": [
+                { name: "군고구마 & 라떼", query: "익산 군고구마 카페", desc: "추위엔 달콤한 익산 고구마와 따뜻한 라떼가 최고." },
+                { name: "사골 떡만두국", query: "익산 만두국 맛집", desc: "얼어붙은 몸을 녹여줄 든든한 사골 국물." }
+            ],
+            "hot": [
+                { name: "시원한 냉면", query: "익산 냉면 맛집", desc: "폭염주의보 발령! 머리가 띵해지는 냉면 긴급 처방." },
+                { name: "살얼음 맥주", query: "익산 역전할머니맥주", desc: "열대야 증후군엔 뼛속까지 시원한 맥주 한 잔." }
+            ]
+        };
+
+        const moodFoods = {
+            "physical": [ // 신체가 힘들 때 (보양식)
+                { name: "황등 육회비빔밥", query: "익산 황등 육회비빔밥", desc: "저하된 체력을 끌어올려줄 고단백 육회 처방." },
+                { name: "한방 삼계탕", query: "익산 삼계탕 맛집", desc: "지친 몸에 활력을 불어넣을 뜨끈한 보양식." },
+                { name: "장어구이", query: "익산 장어 맛집", desc: "급격한 체력 저하엔 스테미너 끝판왕 장어 추천." }
+            ],
+            "emotional": [ // 감성이 풍부하거나 우울할 때 (달달/매콤)
+                { name: "매콤 낙지볶음", query: "익산 낙지볶음", desc: "쌓인 스트레스엔 화끈한 매운맛 요법이 필요합니다." },
+                { name: "분위기 좋은 와인바", query: "익산 와인바", desc: "풍부해진 감성을 채워줄 와인 한 잔 처방." },
+                { name: "익산 고구마빵", query: "익산 고구마빵", desc: "우울한 기분엔 달콤하고 부드러운 디저트가 약입니다." }
+            ],
+            "intellectual": [ // 머리를 쓸 때 (가벼움/커피)
+                { name: "브런치 카페", query: "익산 브런치 카페", desc: "복잡한 머리를 식혀줄 여유로운 브런치 타임." },
+                { name: "모듬 초밥", query: "익산 초밥 맛집", desc: "두뇌 회전을 도울 깔끔하고 부담 없는 오메가3 처방." },
+                { name: "핸드드립 커피", query: "익산 로스터리 카페", desc: "집중력이 필요할 땐 향긋한 카페인 충전." }
+            ]
+        };
 
         const zodiacSigns = [
             { name: "물병자리", start: "01-20", end: "02-18", icon: "♒" },
@@ -273,68 +266,207 @@
             { name: "염소자리", start: "12-25", end: "01-19", icon: "♑" }
         ];
 
-        const fortunes = [
-            { text: "오늘은 당신의 직관력이 빛을 발하는 날입니다. 망설이던 일이 있다면 과감하게 도전해보세요. 예상치 못한 행운이 따를 것입니다.", mood: "active" },
-            { text: "잠시 쉬어가는 여유가 필요한 하루입니다. 무리하게 일을 진행하기보다는 현재 상태를 점검하고 내실을 다지는 것이 좋습니다.", mood: "calm" },
-            { text: "대인관계에서 기분 좋은 소식이 들려올 것 같아요. 오랜 친구에게 연락하거나 새로운 만남을 가져보기에 아주 좋은 날입니다.", mood: "happy" },
-            { text: "작은 실수가 발생할 수 있으니 꼼꼼함이 필요합니다. 하지만 너무 걱정하지 마세요, 전화위복의 기회가 될 수 있습니다.", mood: "focus" },
-            { text: "창의적인 아이디어가 샘솟는 날입니다. 메모하는 습관을 들이세요. 오늘의 생각이 미래의 큰 자산이 될 것입니다.", mood: "dreamy" },
-            { text: "사랑의 기운이 가득한 하루입니다. 연인이 있다면 더욱 깊어질 것이고, 솔로라면 새로운 인연을 기대해도 좋습니다.", mood: "romantic" },
-            { text: "스트레스가 조금 쌓일 수 있는 날입니다. 오늘은 남들보다 나 자신을 챙기는 하루를 보내세요. 맛있는 음식으로 힐링이 필요합니다.", mood: "healing" }
-        ];
-
-        const musicRecommendations = {
-            "active": { url: "https://www.youtube.com/watch?v=gBank9pDQHM", title: "에너지 넘치는 하루를 위한 팝", desc: "활기찬 하루를 위한 Upbeat Pop Playlist" },
-            "calm": { url: "https://www.youtube.com/watch?v=jfKfPfyJRdk", title: "마음이 편안해지는 Lo-fi", desc: "차분한 휴식을 위한 Lo-fi beats" },
-            "happy": { url: "https://www.youtube.com/watch?v=5qap5aO4i9A", title: "기분 좋은 어쿠스틱 노래", desc: "행복한 기분을 더해줄 Acoustic Songs" },
-            "focus": { url: "https://www.youtube.com/watch?v=WPni755-Krg", title: "집중력을 높여주는 피아노", desc: "차분하게 집중할 수 있는 Piano Ambient" },
-            "dreamy": { url: "https://www.youtube.com/watch?v=tNkZsRW7h2c", title: "상상력을 자극하는 우주적 사운드", desc: "영감을 주는 Space Ambient Music" },
-            "romantic": { url: "https://www.youtube.com/watch?v=rJ_qC0T5tMI", title: "달달한 사랑 노래 모음", desc: "설렘 가득한 K-Pop Ballad & R&B" },
-            "healing": { url: "https://www.youtube.com/watch?v=lTRiuFIWV54", title: "지친 마음을 위로하는 연주곡", desc: "편안한 힐링 피아노 연주곡" }
-        };
-
-        const foodRecommendations = {
-            "active": [
-                { name: "황등 육회비빔밥", searchQuery: "익산 황등 육회비빔밥 맛집", desc: "활력이 넘치는 오늘! 든든한 육회비빔밥으로 에너지 충전." },
-                { name: "솜리치킨 (가마솥통닭)", searchQuery: "익산 솜리치킨", desc: "익산의 자존심! 바삭하고 고소한 카레향 통닭." },
-                { name: "익산역 앞 쫄면", searchQuery: "익산역 쫄면 맛집", desc: "새콤달콤 매콤한 쫄면으로 입맛을 확 돋우세요!" }
-            ],
-            "calm": [
-                { name: "서동마(마) 요리", searchQuery: "익산 서동마 맛집", desc: "속이 편안한 서동마 요리로 건강한 한 끼." },
-                { name: "미륵사지 순두부", searchQuery: "익산 미륵사지 순두부", desc: "자극적이지 않고 고소한 순두부의 깊은 맛." },
-                { name: "전통 찻집 쌍화탕", searchQuery: "익산 전통 찻집", desc: "따뜻한 쌍화탕 한 잔과 함께하는 여유." }
-            ],
-            "happy": [
-                { name: "익산 시장 깨통닭", searchQuery: "익산 깨통닭", desc: "기분 좋은 날엔 역시 시장 통닭! 친구들과 나눠 먹기 딱 좋아요." },
-                { name: "모현동 삼겹살", searchQuery: "익산 모현동 삼겹살", desc: "즐거운 날엔 지글지글 삼겹살 파티가 최고죠." },
-                { name: "영등동 떡볶이", searchQuery: "익산 영등동 떡볶이 맛집", desc: "매콤달콤 떡볶이로 행복 지수 업!" }
-            ],
-            "focus": [
-                { name: "시원한 대구탕", searchQuery: "익산 대구탕 맛집", desc: "머리가 맑아지는 시원한 국물 요리." },
-                { name: "전주식 콩나물국밥", searchQuery: "익산 콩나물국밥", desc: "따뜻하고 든든하게 속을 채워 집중력 향상." },
-                { name: "갈비탕", searchQuery: "익산 갈비탕 맛집", desc: "진한 국물의 갈비탕으로 든든하게 몸보신." }
-            ],
-            "dreamy": [
-                { name: "익산 고구마빵", searchQuery: "익산 고구마빵", desc: "달콤하고 부드러운 고구마빵, 창의력 자극 간식." },
-                { name: "대학로 와플", searchQuery: "익산 원광대 와플", desc: "달달한 와플 한 입으로 기분 전환." },
-                { name: "분위기 좋은 베이커리 카페", searchQuery: "익산 베이커리 카페", desc: "향긋한 빵 냄새와 함께 아이디어 구상하기." }
-            ],
-            "romantic": [
-                { name: "영등동 파스타", searchQuery: "익산 영등동 파스타", desc: "로맨틱한 분위기에서 즐기는 파스타 한 접시." },
-                { name: "스테이크 하우스", searchQuery: "익산 스테이크 맛집", desc: "특별한 날, 칼질 한번 어때요?" },
-                { name: "분위기 좋은 와인바", searchQuery: "익산 와인바", desc: "은은한 조명 아래 와인 한 잔의 여유." }
-            ],
-            "healing": [
-                { name: "매콤한 낙지볶음", searchQuery: "익산 낙지볶음", desc: "스트레스 타파! 땀 흘리며 먹는 매운맛." },
-                { name: "얼큰한 물짜장", searchQuery: "익산 물짜장 맛집", desc: "익산의 명물, 얼큰하고 걸쭉한 물짜장의 매력." },
-                { name: "매운 짬뽕", searchQuery: "익산 짬뽕 맛집", desc: "속이 뻥 뚫리는 매운 국물 한 사발." }
-            ]
-        };
-
-        const colors = ["골드", "실버", "딥블루", "로즈핑크", "에메랄드", "화이트", "바이올렛"];
-
-        let currentMood = "";
+        let currentFoodList = [];
         let currentFoodIndex = 0;
+
+        window.addEventListener('load', () => {
+            const savedName = localStorage.getItem('fortune_name');
+            const savedDate = localStorage.getItem('fortune_date');
+            if (savedName) document.getElementById('username').value = savedName;
+            if (savedDate) {
+                document.getElementById('birthdate').value = savedDate;
+                document.getElementById('remember-me').checked = true;
+            }
+            const today = new Date();
+            const month = (today.getMonth() + 1).toString().padStart(2, '0');
+            const date = today.getDate().toString().padStart(2, '0');
+            document.getElementById('today-date').innerText = `${month}.${date}`;
+        });
+
+        // [핵심] 바이오리듬 계산 로직
+        function getBiorhythm(birthDate, targetDate) {
+            const oneDay = 24 * 60 * 60 * 1000;
+            const daysLived = Math.round((targetDate - birthDate) / oneDay);
+            
+            const physical = Math.round(Math.sin((2 * Math.PI * daysLived) / 23) * 100);
+            const emotional = Math.round(Math.sin((2 * Math.PI * daysLived) / 28) * 100);
+            const intellectual = Math.round(Math.sin((2 * Math.PI * daysLived) / 33) * 100);
+
+            return { physical, emotional, intellectual };
+        }
+
+        async function startAnalysis() {
+            const birthInput = document.getElementById('birthdate').value;
+            const nameInput = document.getElementById('username').value.trim();
+            
+            if (!birthInput) { alert("정확한 진단을 위해 생년월일을 입력해주세요!"); return; }
+
+            if (document.getElementById('remember-me').checked) {
+                localStorage.setItem('fortune_date', birthInput);
+                localStorage.setItem('fortune_name', nameInput);
+            } else {
+                localStorage.removeItem('fortune_date');
+                localStorage.removeItem('fortune_name');
+            }
+
+            toggleLoading(true);
+
+            try {
+                // 날씨 가져오기
+                const weatherRes = await fetch("https://api.open-meteo.com/v1/forecast?latitude=35.9483&longitude=126.9578&current_weather=true&timezone=Asia%2FSeoul");
+                const weatherData = await weatherRes.json();
+                await new Promise(resolve => setTimeout(resolve, 1500)); // 연출용 딜레이
+
+                processResult(weatherData.current_weather, birthInput, nameInput);
+
+            } catch (error) {
+                processResult(null, birthInput, nameInput);
+            }
+        }
+
+        function processResult(weather, birthInput, nameInput) {
+            // 1. 날씨 처리
+            let weatherCondition = "clear";
+            let weatherTextStr = "맑음";
+            let weatherIconStr = "☀️";
+            let temp = 20;
+
+            if (weather) {
+                temp = weather.temperature;
+                const code = weather.weathercode;
+                if (code <= 3) {
+                    weatherCondition = temp > 28 ? "hot" : "clear";
+                    weatherTextStr = code === 0 ? "맑음" : "구름";
+                    weatherIconStr = code === 0 ? "☀️" : "⛅";
+                } else if ((code >= 51 && code <= 67) || (code >= 80 && code <= 82)) {
+                    weatherCondition = "rain";
+                    weatherTextStr = "비";
+                    weatherIconStr = "☔";
+                } else if ((code >= 71 && code <= 86)) {
+                    weatherCondition = "snow";
+                    weatherTextStr = "눈";
+                    weatherIconStr = "❄️";
+                } else {
+                    weatherCondition = "clear";
+                    weatherTextStr = "흐림";
+                    weatherIconStr = "🌫️";
+                }
+            }
+            document.getElementById('weather-text').innerText = `${weatherTextStr}, ${temp}°C`;
+            document.getElementById('weather-icon').innerText = weatherIconStr;
+
+            // 2. 바이오리듬 계산
+            const birthDate = new Date(birthInput);
+            const today = new Date();
+            const bio = getBiorhythm(birthDate, today);
+
+            // 그래프 업데이트
+            updateBar('phy', bio.physical);
+            updateBar('emo', bio.emotional);
+            updateBar('int', bio.intellectual);
+
+            // 멘트 생성 로직
+            let fortuneMsg = "";
+            let recommendType = "intellectual"; // Default
+            
+            const maxVal = Math.max(bio.physical, bio.emotional, bio.intellectual);
+            const minVal = Math.min(bio.physical, bio.emotional, bio.intellectual);
+
+            // 진단 소견 (Doctor's Note style)
+            if (bio.physical === maxVal && bio.physical > 0) {
+                fortuneMsg = "신체 활성도가 최고조입니다. 미뤄뒀던 운동이나 활동적인 일을 처리하기에 최적의 시기입니다. 다만 에너지 소비가 많을 수 있습니다.";
+                recommendType = "intellectual"; 
+            } else if (bio.emotional === maxVal && bio.emotional > 0) {
+                fortuneMsg = "감성 지수가 매우 높습니다. 타인과의 교감이나 예술적 활동에 유리하지만, 감정 기복에 주의가 필요합니다.";
+                recommendType = "emotional";
+            } else if (bio.intellectual === maxVal && bio.intellectual > 0) {
+                fortuneMsg = "지성 리듬이 상승세입니다. 집중력과 판단력이 좋아 중요한 결정을 내리기에 적합한 하루입니다.";
+                recommendType = "intellectual";
+            }
+            
+            if (maxVal < 0) {
+                fortuneMsg = "전반적인 생체 리듬이 저조기(Low) 구간입니다. 무리한 활동보다는 휴식과 영양 보충이 시급합니다.";
+                recommendType = "physical"; 
+            } else if (bio.emotional < -50) {
+                fortuneMsg += " 특히 감정 지수가 낮아 스트레스에 취약할 수 있으니 마인드 컨트롤 처방이 필요합니다.";
+                recommendType = "emotional"; 
+            } else if (bio.physical < -50) {
+                fortuneMsg += " 신체 에너지가 바닥입니다. 오늘은 무조건적인 휴식을 권장합니다.";
+                recommendType = "physical";
+            }
+
+            document.getElementById('fortune-text').innerText = fortuneMsg;
+
+            // 3. 음식 추천 (처방)
+            const badge = document.getElementById('food-reason-badge');
+            
+            if (recommendType === "physical") {
+                currentFoodList = moodFoods["physical"];
+                badge.innerText = "기력 회복 처방";
+                badge.className = "text-[10px] bg-green-500/30 text-green-100 px-2 py-0.5 rounded-full font-medium";
+            } else if (recommendType === "emotional") {
+                currentFoodList = moodFoods["emotional"];
+                badge.innerText = "스트레스 완화 처방";
+                badge.className = "text-[10px] bg-red-500/30 text-red-100 px-2 py-0.5 rounded-full font-medium";
+            } else {
+                currentFoodList = moodFoods["intellectual"];
+                badge.innerText = "두뇌 활성 처방";
+                badge.className = "text-[10px] bg-blue-500/30 text-blue-100 px-2 py-0.5 rounded-full font-medium";
+            }
+
+            currentFoodIndex = 0;
+            updateFoodUI(currentFoodList[0]);
+
+            // UI 업데이트
+            const zodiac = getZodiac(birthDate);
+            document.getElementById('zodiac-icon').innerText = zodiac.icon;
+            document.getElementById('user-greeting').innerText = nameInput ? `${nameInput}님` : "환자분";
+
+            toggleLoading(false);
+            document.getElementById('input-section').classList.add('hidden');
+            document.getElementById('result-section').classList.remove('hidden');
+            lucide.createIcons();
+        }
+
+        function updateBar(type, value) {
+            const bar = document.getElementById(`bar-${type}`);
+            const valText = document.getElementById(`val-${type}`);
+            
+            const width = Math.max(5, (value + 100) / 2); 
+            
+            setTimeout(() => {
+                bar.style.width = `${width}%`;
+                if (value < 0) bar.style.opacity = "0.6";
+                else bar.style.opacity = "1";
+            }, 100);
+
+            valText.innerText = `${value > 0 ? '+' : ''}${value}`;
+            if (value > 0) valText.className = "font-bold text-white";
+            else valText.className = "font-bold text-gray-400";
+        }
+
+        function updateFoodUI(food) {
+            document.getElementById('food-name').innerText = food.name;
+            document.getElementById('food-desc').innerText = food.desc;
+            document.getElementById('food-map-link').href = "https://map.naver.com/p/search/" + encodeURIComponent(food.query);
+        }
+
+        function rerollFood() {
+            currentFoodIndex = (currentFoodIndex + 1) % currentFoodList.length;
+            updateFoodUI(currentFoodList[currentFoodIndex]);
+        }
+
+        function toggleLoading(isLoading) {
+            const btnText = document.getElementById('btn-text');
+            const btnLoader = document.getElementById('btn-loader');
+            if (isLoading) {
+                btnText.classList.add('hidden');
+                btnLoader.classList.remove('hidden');
+            } else {
+                btnText.classList.remove('hidden');
+                btnLoader.classList.add('hidden');
+            }
+        }
 
         function getZodiac(date) {
             const month = date.getMonth() + 1;
@@ -347,166 +479,41 @@
             return zodiacSigns.find(z => z.name === "염소자리");
         }
 
-        function seededRandom(seed) {
-            let x = Math.sin(seed++) * 10000;
-            return x - Math.floor(x);
-        }
-
-        function generateStars(score) {
-            let stars = "";
-            for (let i = 0; i < 5; i++) {
-                if (i < score) stars += `<span class="star-filled">★</span>`;
-                else stars += `<span class="star-empty">☆</span>`;
-            }
-            return stars;
-        }
-
-        function calculateFortune() {
-            const birthInput = document.getElementById('birthdate').value;
-            const nameInput = document.getElementById('username').value.trim();
-            const rememberMe = document.getElementById('remember-me').checked;
-
-            if (!birthInput) {
-                alert("생년월일을 입력해주세요!");
-                return;
-            }
-
-            if (rememberMe) {
-                localStorage.setItem('fortune_date', birthInput);
-                localStorage.setItem('fortune_name', nameInput);
+        function shareResult() {
+            if (navigator.share) {
+                navigator.share({
+                    title: '익산 맛집 처방전',
+                    text: '닥터 익산의 바이오리듬 진단 결과와 맛집 처방을 확인하세요!',
+                    url: window.location.href
+                });
             } else {
-                localStorage.removeItem('fortune_date');
-                localStorage.removeItem('fortune_name');
+                navigator.clipboard.writeText(window.location.href).then(() => alert("진단서 링크가 복사되었습니다!"));
             }
+        }
 
-            const btnText = document.getElementById('btn-text');
-            const btnLoader = document.getElementById('btn-loader');
-            const btnIcon = document.getElementById('btn-icon');
-            btnText.classList.add('hidden');
-            btnIcon.classList.add('hidden');
-            btnLoader.classList.remove('hidden');
-
-            setTimeout(() => {
-                const birthDate = new Date(birthInput);
-                const today = new Date();
-                const zodiac = getZodiac(birthDate);
-
-                const seedString = birthInput + today.toISOString().split('T')[0];
-                let seed = 0;
-                for (let i = 0; i < seedString.length; i++) seed += seedString.charCodeAt(i);
-
-                const rand1 = seededRandom(seed);
-                const rand2 = seededRandom(seed + 1);
-                
-                const fortuneIndex = Math.floor(rand1 * fortunes.length);
-                const selectedFortune = fortunes[fortuneIndex];
-                currentMood = selectedFortune.mood;
-
-                const loveScore = Math.floor(seededRandom(seed + 2) * 5) + 1;
-                const moneyScore = Math.floor(seededRandom(seed + 3) * 5) + 1;
-                const healthScore = Math.floor(seededRandom(seed + 4) * 5) + 1;
-
-                const luckyColor = colors[Math.floor(rand2 * colors.length)];
-                const luckyNumber = Math.floor(rand2 * 99) + 1;
-
-                const music = musicRecommendations[selectedFortune.mood];
-                currentFoodIndex = 0;
-                const foodList = foodRecommendations[selectedFortune.mood];
-                const food = foodList[0];
-
-                document.getElementById('zodiac-icon').textContent = zodiac.icon;
-                const displayName = nameInput ? `${nameInput}님` : "당신";
-                document.getElementById('user-greeting').textContent = `${displayName}의 별자리`;
-                document.getElementById('zodiac-name').textContent = zodiac.name;
-
-                document.getElementById('score-love').innerHTML = generateStars(loveScore);
-                document.getElementById('score-money').innerHTML = generateStars(moneyScore);
-                document.getElementById('score-health').innerHTML = generateStars(healthScore);
-
-                document.getElementById('fortune-text').textContent = selectedFortune.text;
-                document.getElementById('lucky-color').textContent = `행운색: ${luckyColor}`;
-                document.getElementById('lucky-number').textContent = `행운수: ${luckyNumber}`;
-                
-                updateFoodDisplay(food);
-
-                document.getElementById('music-title').textContent = music.title;
-                document.getElementById('music-desc').textContent = music.desc;
-                document.getElementById('youtube-link').href = music.url;
-
-                document.getElementById('input-section').classList.add('hidden');
-                document.getElementById('result-section').classList.remove('hidden');
-                document.getElementById('result-section').scrollIntoView({ behavior: 'smooth' });
-
-                btnText.classList.remove('hidden');
-                btnIcon.classList.remove('hidden');
-                btnLoader.classList.add('hidden');
+        function saveAsImage() {
+            const captureArea = document.querySelector("#capture-area");
+            const saveBtn = document.getElementById('save-btn');
+            const originalText = saveBtn.innerHTML;
+            saveBtn.innerHTML = "저장 중...";
+            
+            html2canvas(captureArea, {
+                scale: 2, backgroundColor: null,
+                ignoreElements: (element) => element.classList.contains('no-capture') || element.hasAttribute('data-html2canvas-ignore')
+            }).then(canvas => {
+                const link = document.createElement("a");
+                link.download = "익산맛집처방전.png";
+                link.href = canvas.toDataURL("image/png");
+                link.click();
+                saveBtn.innerHTML = originalText;
                 lucide.createIcons();
-
-            }, 1000); 
-        }
-
-        function updateFoodDisplay(food) {
-            document.getElementById('food-name').textContent = food.name;
-            document.getElementById('food-desc').textContent = food.desc;
-            const mapBaseUrl = "https://map.naver.com/p/search/";
-            document.getElementById('food-map-link').href = mapBaseUrl + encodeURIComponent(food.searchQuery);
-        }
-
-        function rerollFood() {
-            if (!currentMood) return;
-            const foodList = foodRecommendations[currentMood];
-            currentFoodIndex = (currentFoodIndex + 1) % foodList.length;
-            const nextFood = foodList[currentFoodIndex];
-            
-            const foodNameEl = document.getElementById('food-name');
-            foodNameEl.style.opacity = '0';
-            setTimeout(() => {
-                updateFoodDisplay(nextFood);
-                foodNameEl.style.opacity = '1';
-            }, 200);
-        }
-
-        function copyResult() {
-            const name = document.getElementById('username').value || "나";
-            const zodiac = document.getElementById('zodiac-name').textContent;
-            const fortune = document.getElementById('fortune-text').textContent;
-            const food = document.getElementById('food-name').textContent;
-            
-            const textToCopy = `[🔮오늘의 운세 & 익산 맛집]\n\n👤 ${name}의 ${zodiac} 운세\n✨ "${fortune}"\n\n🍽 추천 메뉴: ${food}\n\n오늘도 행운 가득한 하루 되세요!`;
-
-            const textArea = document.getElementById('hidden-copy-area');
-            textArea.value = textToCopy;
-            textArea.select();
-            
-            try {
-                const successful = document.execCommand('copy');
-                const btn = document.getElementById('copy-btn');
-                const originalContent = btn.innerHTML;
-                
-                if (successful) {
-                    btn.innerHTML = `<i data-lucide="check" class="w-4 h-4"></i><span>복사 완료!</span>`;
-                    btn.classList.add('bg-green-600', 'border-green-500');
-                    setTimeout(() => {
-                        btn.innerHTML = originalContent;
-                        btn.classList.remove('bg-green-600', 'border-green-500');
-                        lucide.createIcons();
-                    }, 2000);
-                } else {
-                    alert('복사에 실패했습니다.');
-                }
-            } catch (err) {
-                console.error('Copy failed', err);
-                alert('복사 기능을 사용할 수 없습니다.');
-            }
+            });
         }
 
         function resetApp() {
             document.getElementById('input-section').classList.remove('hidden');
             document.getElementById('result-section').classList.add('hidden');
-            if (!document.getElementById('remember-me').checked) {
-                document.getElementById('birthdate').value = '';
-                document.getElementById('username').value = '';
-            }
+            document.querySelectorAll('.progress-bar').forEach(el => el.style.width = '0%');
         }
     </script>
 </body>
